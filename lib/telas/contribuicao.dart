@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ibnb/config/constants.dart';
 import 'package:ibnb/telas/formulario.dart';
+import 'package:ibnb/telas/widget/redes-socias.dart';
 
 class TelaContribuicao extends StatefulWidget {
   @override
@@ -10,15 +11,6 @@ class TelaContribuicao extends StatefulWidget {
 }
 
 class _TelaContribuicao extends State<TelaContribuicao> {
-  _textField({String labelText}) {
-    return TextField(
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        labelText: labelText,
-        errorText: null
-      ),
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +19,7 @@ class _TelaContribuicao extends State<TelaContribuicao> {
           children: <Widget>[
             Container(
               alignment: Alignment.center,
-              height: 180,
+              height: MediaQuery.of(context).size.height * 0.4,
               decoration: BoxDecoration(
                 color: Colors.black,
                 image: DecorationImage(
@@ -41,7 +33,7 @@ class _TelaContribuicao extends State<TelaContribuicao> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -49,7 +41,10 @@ class _TelaContribuicao extends State<TelaContribuicao> {
                   Center(
                     child: Text(
                       "Faça a sua contribuição",
-                      style: TextStyle(color: ibaTextColor, fontSize: 40),
+                      style: TextStyle(
+                          color: ibaTextColor,
+                          fontSize: 40,
+                          fontFamily: 'Lato'),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -64,7 +59,8 @@ class _TelaContribuicao extends State<TelaContribuicao> {
                 children: <Widget>[
                   Text(
                     "Esta é uma plataforma para todos que desejam semear no Reino de Deus através da devolução dos seus dízimos e ofertas na Igreja Batista Nova Belém de forma Segura e Prática por meio de Boleto, Débito ou Crédito",
-                    style: TextStyle(color: ibaTextColor, fontSize: 22),
+                    style: TextStyle(
+                        color: ibaTextColor, fontSize: 20, fontFamily: 'Lato'),
                     textAlign: TextAlign.justify,
                   ),
                 ],
@@ -77,15 +73,24 @@ class _TelaContribuicao extends State<TelaContribuicao> {
                 children: <Widget>[
                   Container(
                     alignment: Alignment.center,
-                    height: 180,
+                    height: 380,
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(255,255,255,0.2),
+                      color: Color.fromRGBO(255, 255, 255, 0.2),
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
+                        topLeft: Radius.circular(40),
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10),
                       ),
                     ),
-                    child: FormularioContribuicao()
+                    child: FormularioContribuicao(),
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      color: ibaTextColor,
+                    ),
+                    child: RedesSociais(),
                   ),
                 ],
               ),
