@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_recaptcha_v2/flutter_recaptcha_v2.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:ibnb/config/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/services.dart';
+import 'package:mercadopago_sdk/mercadopago_sdk.dart';
 
 class FormularioContribuicao extends StatefulWidget {
   @override
@@ -22,6 +23,21 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
   @override
   void initState() {
     super.initState();
+    const canalMercadoPagoResposta = const MethodChannel("ibnb.com/mercadoPagoResposta");
+    canalMercadoPagoResposta.setMethodCallHandler((MethodCall call) async {
+      switch(call.method) {
+        case 'mercadoPagoOK':
+          var idPagamento = call.arguments[0];
+          var statusPagamento = call.arguments[1];
+          var detalhesPagamento = call.arguments[2];
+          Phoenix.rebirth(context);
+          return mercadoPagoSucesso(idPagamento, statusPagamento, detalhesPagamento);
+        case 'mercadoPagoError':
+          var error = call.arguments[0];
+          Phoenix.rebirth(context);
+          return mercadoPagoErro(error);
+      } 
+    });
     selectRadio = 0;
     _focusNode = FocusNode();
   }
@@ -167,7 +183,7 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
     if (value.isEmpty) {
       return 'Digite o valor da contribuição';
     }
-      return null;
+    return null;
   }
 
   void _validateInputs() {
@@ -179,7 +195,7 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
         // TODOS OS DADOS DO FORMULARIO SÃO VÁLIDOS
         // O PRÓXIMO PASSO É REALIZAR A INTEGRAÇÃO COM O MERCADO PAGO
         form.save();
-        
+        mercadoPago(valor.replaceAll(',', '.'), selectRadio);
       }
     } else {
       setState(() => _autoValidate = true);
@@ -197,5 +213,54 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
       ),
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+  Future<Map<String, dynamic>> preferencia(valor, tipo) async {
+    var mp = MP(clientID, clientSecret);
+    var preference = {
+      "items": [
+        {
+          "title": tipo == 1 ? "DEPÓSITO DO DÍZIMO" : "DEPÓSITO DA OFERTA",
+          "quantity": 1,
+          "currency_id": "BRL",
+          "unit_price": double.tryParse(valor)
+        }
+      ],
+      "payer": {"email": "email@email.com"}
+    };
+
+    var result = await mp.createPreference(preference);
+
+    return result;
+  }
+
+  Future<void> mercadoPago(valor, tipo) async {
+    preferencia(valor, tipo).then((result) {
+      if (result != null) {
+        var preferenceId = result['response']['id'];
+
+        try {
+          const canalMercadoPago = const MethodChannel("ibnb.com/mercadoPago");
+          final response = canalMercadoPago.invokeMethod(
+            "mercadoPago", <String, dynamic>{
+            "publicKey": publicKey,
+            "preferenceId": preferenceId
+          });
+          print(response);
+        } on PlatformException catch (e) {
+          print(e.message);
+        }
+      }
+    });
+  }
+
+  void mercadoPagoSucesso(idPagamento, statusPagamento, detalhesPagamento) {
+      print("ID DO PAGAMENTO: $idPagamento");
+      print("STATUS DO PAGAMENTO: $statusPagamento");
+      print("DETALHES DO PAGAMENTO: $detalhesPagamento");
+  }
+
+  void mercadoPagoErro(error) {
+      print("ERRO DO PAGAMENTO: $error");
   }
 }

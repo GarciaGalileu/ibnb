@@ -1,10 +1,11 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'config/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:ibnb/telas/contribuicao.dart';
 
 void main() {
-  runApp(Contribuicao());
+  runApp(Phoenix(child: Contribuicao()));
 }
 
 class Contribuicao extends StatelessWidget {
