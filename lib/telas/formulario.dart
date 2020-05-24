@@ -20,14 +20,14 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
   String valor;
-
+  
   int selectRadio;
   int buttonState;
   @override
   void initState() {
     super.initState();
     const canalMercadoPagoResposta =
-        const MethodChannel("ibnb.com/mercadoPagoResposta");
+    const MethodChannel("ibnb.com/mercadoPagoResposta");
     canalMercadoPagoResposta.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'mercadoPagoOK':
@@ -86,14 +86,10 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
           labelText: _focusNode.hasFocus ? "Digite o valor" : "R\$ 0,00",
           labelStyle: TextStyle(color: ibaTextColor),
           fillColor: ibaTextColor,
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.white, width: 2.0),
-            //borderRadius: BorderRadius.circular(25.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.white, width: 2.0),
-            // borderRadius: BorderRadius.circular(25.0),
-          ),
+          border: OutlineInputBorder(borderSide: const BorderSide(color: Colors.white, width: 2.0),),
+          enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.white, width: 2.0),),
+          focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.white, width: 2.0),),
+          errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.white, width: 2.0),),
         ),
       ),
     );
@@ -133,6 +129,7 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
                   value: 1,
                   groupValue: selectRadio,
                   onChanged: (val) {
+                    FocusScope.of(context).requestFocus(new FocusNode());
                     setSelectRadio(val);
                   },
                 ),
@@ -145,6 +142,7 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
                     value: 2,
                     groupValue: selectRadio,
                     onChanged: (val) {
+                      FocusScope.of(context).requestFocus(new FocusNode());
                       setSelectRadio(val);
                     }),
                 new Text(
@@ -170,12 +168,12 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
                   decoration: const BoxDecoration(),
                   child: Center(
                     child:
-                        Text(buttonState == 0 ? 'CONFIRMAR' : 'PROCESSANDO...',
+                        Text(buttonState == 0 ? 'CONFIRMAR' : 'PROCESSANDO...'  ,
                             style: new TextStyle(
                               fontSize: 20.0,
                               color: ibaTextColor,
                             ),
-                            textAlign: TextAlign.center),
+                            textAlign: TextAlign.center) ,
                   ),
                 ),
               ),

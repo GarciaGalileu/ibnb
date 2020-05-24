@@ -14,8 +14,13 @@ class _TelaContribuicao extends State<TelaContribuicao> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: ContainerApp(),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: SingleChildScrollView(
+          child: ContainerApp(),
+        ),
       ),
     );
   }
@@ -56,9 +61,7 @@ class ContainerApp extends StatelessWidget {
                   child: Text(
                     "Faça a sua contribuição",
                     style: TextStyle(
-                        color: ibaTextColor,
-                        fontSize: 40,
-                        fontFamily: 'Lato'),
+                        color: ibaTextColor, fontSize: 40, fontFamily: 'Lato'),
                     textAlign: TextAlign.center,
                   ),
                 ),
