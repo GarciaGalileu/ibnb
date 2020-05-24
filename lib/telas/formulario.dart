@@ -4,6 +4,8 @@ import 'package:ibnb/config/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/services.dart';
 import 'package:mercadopago_sdk/mercadopago_sdk.dart';
+import 'package:edge_alert/edge_alert.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FormularioContribuicao extends StatefulWidget {
   @override
@@ -20,25 +22,29 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
   String valor;
 
   int selectRadio;
+  int buttonState;
   @override
   void initState() {
     super.initState();
-    const canalMercadoPagoResposta = const MethodChannel("ibnb.com/mercadoPagoResposta");
+    const canalMercadoPagoResposta =
+        const MethodChannel("ibnb.com/mercadoPagoResposta");
     canalMercadoPagoResposta.setMethodCallHandler((MethodCall call) async {
-      switch(call.method) {
+      switch (call.method) {
         case 'mercadoPagoOK':
           var idPagamento = call.arguments[0];
           var statusPagamento = call.arguments[1];
           var detalhesPagamento = call.arguments[2];
           Phoenix.rebirth(context);
-          return mercadoPagoSucesso(idPagamento, statusPagamento, detalhesPagamento);
+          return mercadoPagoSucesso(
+              idPagamento, statusPagamento, detalhesPagamento);
         case 'mercadoPagoError':
           var error = call.arguments[0];
           Phoenix.rebirth(context);
           return mercadoPagoErro(error);
-      } 
+      }
     });
     selectRadio = 0;
+    buttonState = 0;
     _focusNode = FocusNode();
   }
 
@@ -163,12 +169,13 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
                   height: 50,
                   decoration: const BoxDecoration(),
                   child: Center(
-                    child: Text('CONFIRMAR',
-                        style: new TextStyle(
-                          fontSize: 20.0,
-                          color: ibaTextColor,
-                        ),
-                        textAlign: TextAlign.center),
+                    child:
+                        Text(buttonState == 0 ? 'CONFIRMAR' : 'PROCESSANDO...',
+                            style: new TextStyle(
+                              fontSize: 20.0,
+                              color: ibaTextColor,
+                            ),
+                            textAlign: TextAlign.center),
                   ),
                 ),
               ),
@@ -187,9 +194,11 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
   }
 
   void _validateInputs() {
+    setState(() => buttonState = 1);
     final form = _formKey.currentState;
     if (form.validate()) {
       if (selectRadio == 0) {
+        setState(() => buttonState = 0);
         _showSnackBar('Selecione o tipo de contribuição');
       } else {
         // TODOS OS DADOS DO FORMULARIO SÃO VÁLIDOS
@@ -198,6 +207,7 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
         mercadoPago(valor.replaceAll(',', '.'), selectRadio);
       }
     } else {
+      setState(() => buttonState = 0);
       setState(() => _autoValidate = true);
     }
   }
@@ -228,10 +238,14 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
       ],
       "payer": {"email": "email@email.com"}
     };
-
+    try {
     var result = await mp.createPreference(preference);
 
     return result;
+    } catch (e) {
+      setState(() => buttonState = 0);
+      EdgeAlert.show(context, title: 'Ocorreu um erro ao realizar o processamento', description: 'Por favor verifique a sua conexão com a internet', gravity: EdgeAlert.BOTTOM, duration: EdgeAlert.LENGTH_LONG, backgroundColor:	Colors.red, icon: FontAwesomeIcons.infoCircle);  
+    }
   }
 
   Future<void> mercadoPago(valor, tipo) async {
@@ -255,12 +269,12 @@ class _FormularioContribuicao extends State<FormularioContribuicao> {
   }
 
   void mercadoPagoSucesso(idPagamento, statusPagamento, detalhesPagamento) {
-      print("ID DO PAGAMENTO: $idPagamento");
-      print("STATUS DO PAGAMENTO: $statusPagamento");
-      print("DETALHES DO PAGAMENTO: $detalhesPagamento");
+    print("ID DO PAGAMENTO: $idPagamento");
+    print("STATUS DO PAGAMENTO: $statusPagamento");
+    print("DETALHES DO PAGAMENTO: $detalhesPagamento");
   }
 
   void mercadoPagoErro(error) {
-      print("ERRO DO PAGAMENTO: $error");
+    print("ERRO DO PAGAMENTO: $error");
   }
 }
