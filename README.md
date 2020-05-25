@@ -1,6 +1,6 @@
 # ibnb
 
-A new Flutter project.
+Este é um projeto de estudo para ajudar nas contribuições que conta com a integração nativa com o Mercado Pago
 
 ## Getting Started
 
